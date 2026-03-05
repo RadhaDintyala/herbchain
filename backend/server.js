@@ -11,16 +11,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/chain', require('./routes/api'));
-
-const PORT = process.env.PORT || 5000;
-
-// Since MongoDB might not be installed on the user's machine or running,
-// we will start the server and attempt to connect, but not crash if it fails.
-// We'll also provide a fallback in auth to use in-memory users if Mongo fails.
-
 let isConnected = false;
 
 const connectDB = async () => {
@@ -44,17 +34,29 @@ const connectDB = async () => {
 
 // Vercel Serverless handling or Local running
 if (process.env.NODE_ENV !== 'production' && require.main === module) {
+    // We will connectDB and listen at the end of the file
+} else {
+    // For Vercel Serverless Functions
+    // MUST BE BEFORE ROUTES
+    app.use(async (req, res, next) => {
+        await connectDB();
+        next();
+    });
+}
+
+// Routes
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/chain', require('./routes/api'));
+
+const PORT = process.env.PORT || 5000;
+
+// Local running
+if (process.env.NODE_ENV !== 'production' && require.main === module) {
     connectDB().then(() => {
         app.listen(PORT, () => {
             console.log(`Server running locally on port ${PORT}`);
             setInterval(() => { }, 1000 * 60 * 60);
         });
-    });
-} else {
-    // For Vercel Serverless Functions
-    app.use(async (req, res, next) => {
-        await connectDB();
-        next();
     });
 }
 
