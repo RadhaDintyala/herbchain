@@ -41,7 +41,8 @@ const FarmerDashboard = () => {
 
   const fetchCollections = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/chain/all-collections");
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const res = await axios.get(`${API_URL}/api/chain/all-collections`);
       setBatches(res.data);
     } catch (err: any) {
       toast({
@@ -67,7 +68,8 @@ const FarmerDashboard = () => {
     setIsSubmitting(true);
     try {
       const payload = { ...formData, timestamp: Date.now().toString(), collectorName: user?.name || "Farmer" };
-      await axios.post("http://localhost:5000/api/chain/collection", payload);
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      await axios.post(`${API_URL}/api/chain/collection`, payload);
       toast({ title: "Success", description: "Harvest registered on the blockchain!" });
       setIsModalOpen(false);
       setFormData({ ...formData, collectionId: `COL-${Math.floor(Math.random() * 10000)}` });

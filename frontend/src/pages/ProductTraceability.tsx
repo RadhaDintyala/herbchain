@@ -36,7 +36,8 @@ const ProductTraceability = () => {
     setLoading(true);
     setTraceData(null);
     try {
-      const res = await axios.get(`http://localhost:5000/api/chain/traceability/${idToSearch}`);
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const res = await axios.get(`${API_URL}/api/chain/traceability/${idToSearch}`);
       setTraceData(res.data);
     } catch (err: any) {
       toast({

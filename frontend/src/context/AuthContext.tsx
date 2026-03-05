@@ -36,7 +36,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }, [token]);
 
     const login = async (email: string, password: string) => {
-        const res = await axios.post("http://localhost:5000/api/auth/login", { email, password });
+        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+        const res = await axios.post(`${API_URL}/api/auth/login`, { email, password });
         const { token, user } = res.data;
         setToken(token);
         setUser(user);
@@ -47,7 +48,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const register = async (name: string, email: string, password: string, role: string) => {
-        const res = await axios.post("http://localhost:5000/api/auth/register", { name, email, password, role });
+        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+        const res = await axios.post(`${API_URL}/api/auth/register`, { name, email, password, role });
         const { token, user } = res.data;
         setToken(token);
         setUser(user);

@@ -40,7 +40,8 @@ const ManufacturerDashboard = () => {
 
   const fetchBatches = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/chain/all-batches");
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const res = await axios.get(`${API_URL}/api/chain/all-batches`);
       setBatches(res.data);
     } catch (err: any) {
       toast({
@@ -71,7 +72,8 @@ const ManufacturerDashboard = () => {
         linkedTestIds: formData.linkedTestIds.split(',').map(id => id.trim())
       };
 
-      await axios.post("http://localhost:5000/api/chain/batch", payload);
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      await axios.post(`${API_URL}/api/chain/batch`, payload);
       toast({ title: "Success", description: "Production batch registered on the blockchain!" });
       setIsModalOpen(false);
       setFormData({
