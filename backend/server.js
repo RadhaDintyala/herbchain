@@ -21,26 +21,45 @@ const PORT = process.env.PORT || 5000;
 // we will start the server and attempt to connect, but not crash if it fails.
 // We'll also provide a fallback in auth to use in-memory users if Mongo fails.
 
-let mongoConnected = false;
+let isConnected = false;
 
-mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/herbchain", { serverSelectionTimeoutMS: 2000 })
-    .then(() => {
-        console.log('MongoDB Connected...');
+const connectDB = async () => {
+    if (isConnected) {
         app.locals.mongoConnected = true;
-    })
-    .catch(err => {
-        console.error('MongoDB connection failed. Using in-memory fallback for auth.', err.message);
+        return;
+    }
+    try {
+        const dbUri = process.env.MONGO_URI || "mongodb+srv://24hp1a0539_db_user:rbgJ7urL44E3LFR1@cluster0.4r1hdf0.mongodb.net/herbchain?appName=Cluster0";
+        await mongoose.connect(dbUri, {
+            serverSelectionTimeoutMS: 5000,
+        });
+        isConnected = true;
+        app.locals.mongoConnected = true;
+        console.log('MongoDB Connected seamlessly...');
+    } catch (err) {
+        console.error('MongoDB connection failed. Using in-memory fallback.', err.message);
         app.locals.mongoConnected = false;
+    }
+};
+
+// Vercel Serverless handling or Local running
+if (process.env.NODE_ENV !== 'production' && require.main === module) {
+    connectDB().then(() => {
+        app.listen(PORT, () => {
+            console.log(`Server running locally on port ${PORT}`);
+            setInterval(() => { }, 1000 * 60 * 60);
+        });
     });
-
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-
-    // In mock mode without a real DB or network, Node might exit if there are no pending callbacks.
-    // We add a dummy interval to keep the event loop alive for testing.
-    setInterval(() => { }, 1000 * 60 * 60);
-});
+} else {
+    // For Vercel Serverless Functions
+    app.use(async (req, res, next) => {
+        await connectDB();
+        next();
+    });
+}
 
 process.on('unhandledRejection', (reason, promise) => {
     console.log('Unhandled Rejection at:', promise, 'reason:', reason);
 });
+
+module.exports = app;
