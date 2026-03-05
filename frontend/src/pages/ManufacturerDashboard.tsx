@@ -5,6 +5,7 @@ import AuthContext from "../context/AuthContext";
 import axios from "axios";
 import { format } from "date-fns";
 import { useToast } from "@/components/ui/use-toast";
+import { QRCodeSVG } from "qrcode.react";
 
 const sidebarItems = [
   { icon: "dashboard", label: "Dashboard", active: true },
@@ -19,6 +20,7 @@ const ManufacturerDashboard = () => {
 
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedQrBatch, setSelectedQrBatch] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     batchId: `BAT-${Math.floor(Math.random() * 10000)}`,
@@ -147,6 +149,24 @@ const ManufacturerDashboard = () => {
 
         <div className="p-8 space-y-8">
 
+          {/* QR Code Modal */}
+          {selectedQrBatch && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity">
+              <div className="bg-card w-full max-w-sm rounded-2xl shadow-2xl p-8 relative border border-primary/20 flex flex-col items-center animate-in fade-in zoom-in-95 duration-200">
+                <button onClick={() => setSelectedQrBatch(null)} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground">
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+                <h3 className="text-xl font-bold mb-2">Batch QR Code</h3>
+                <p className="text-muted-foreground text-sm mb-6 text-center">Scan this with the Traceability Hub to instantly verify its origin.</p>
+                <div className="p-4 bg-white rounded-xl shadow-inner inline-block">
+                  <QRCodeSVG value={selectedQrBatch} size={200} />
+                </div>
+                <p className="mt-6 font-mono font-bold text-primary text-xl">{selectedQrBatch}</p>
+                <Button className="w-full mt-6" onClick={() => setSelectedQrBatch(null)}>Close</Button>
+              </div>
+            </div>
+          )}
+
           {/* Dialog Modal */}
           {isModalOpen && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity">
@@ -252,7 +272,13 @@ const ManufacturerDashboard = () => {
                   <tbody className="divide-y divide-primary/5">
                     {batches.length > 0 ? batches.map((b: any) => (
                       <tr key={b.batchId} className="hover:bg-primary/5 transition-colors">
-                        <td className="px-6 py-4 font-mono text-sm text-primary font-bold cursor-pointer hover:underline">{b.batchId}</td>
+                        <td
+                          className="px-6 py-4 font-mono text-sm text-primary font-bold cursor-pointer hover:underline"
+                          onClick={() => setSelectedQrBatch(b.batchId)}
+                          title="View QR Code"
+                        >
+                          {b.batchId}
+                        </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
                             <span className="font-medium text-sm">AgriTrace Mfg</span>
