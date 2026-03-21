@@ -19,25 +19,31 @@ const connectDB = async () => {
         return;
     }
     try {
-        const dbUri = process.env.MONGO_URI || "mongodb+srv://24hp1a0539_db_user:rbgJ7urL44E3LFR1@cluster0.4r1hdf0.mongodb.net/herbchain?appName=Cluster0";
+        // Updated: Strictly using the environment variable for security
+        const dbUri = process.env.MONGO_URI;
+        
+        if (!dbUri) {
+            throw new Error("MONGO_URI is missing in environment variables!");
+        }
+
         await mongoose.connect(dbUri, {
             serverSelectionTimeoutMS: 5000,
         });
+        
         isConnected = true;
         app.locals.mongoConnected = true;
         console.log('MongoDB Connected seamlessly...');
     } catch (err) {
-        console.error('MongoDB connection failed. Using in-memory fallback.', err.message);
+        console.error('MongoDB connection failed:', err.message);
         app.locals.mongoConnected = false;
     }
 };
 
 // Vercel Serverless handling or Local running
 if (process.env.NODE_ENV !== 'production' && require.main === module) {
-    // We will connectDB and listen at the end of the file
+    // Local logic handled below
 } else {
     // For Vercel Serverless Functions
-    // MUST BE BEFORE ROUTES
     app.use(async (req, res, next) => {
         await connectDB();
         next();
@@ -55,7 +61,6 @@ if (process.env.NODE_ENV !== 'production' && require.main === module) {
     connectDB().then(() => {
         app.listen(PORT, () => {
             console.log(`Server running locally on port ${PORT}`);
-            setInterval(() => { }, 1000 * 60 * 60);
         });
     });
 }
