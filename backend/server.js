@@ -14,14 +14,9 @@ app.use(express.json());
 let isConnected = false;
 
 const connectDB = async () => {
-    if (isConnected) {
-        app.locals.mongoConnected = true;
-        return;
-    }
+    if (isConnected) return;
     try {
-        // Updated: Strictly using the environment variable for security
         const dbUri = process.env.MONGO_URI;
-        
         if (!dbUri) {
             throw new Error("MONGO_URI is missing in environment variables!");
         }
@@ -31,39 +26,28 @@ const connectDB = async () => {
         });
         
         isConnected = true;
-        app.locals.mongoConnected = true;
         console.log('MongoDB Connected seamlessly...');
     } catch (err) {
         console.error('MongoDB connection failed:', err.message);
-        app.locals.mongoConnected = false;
+        process.exit(1); // Exit if DB connection fails on startup
     }
 };
-
-// Vercel Serverless handling or Local running
-if (process.env.NODE_ENV !== 'production' && require.main === module) {
-    // Local logic handled below
-} else {
-    // For Vercel Serverless Functions
-    app.use(async (req, res, next) => {
-        await connectDB();
-        next();
-    });
-}
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/chain', require('./routes/api'));
 
+// Health Check (Good for Render to know the app is alive)
+app.get('/health', (req, res) => res.status(200).send('OK'));
+
 const PORT = process.env.PORT || 5000;
 
-// Local running
-if (process.env.NODE_ENV !== 'production' && require.main === module) {
-    connectDB().then(() => {
-        app.listen(PORT, () => {
-            console.log(`Server running locally on port ${PORT}`);
-        });
+// THE FIX: Listen on all interfaces (0.0.0.0) for Cloud Deployment
+connectDB().then(() => {
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`Server is LIVE and listening on port ${PORT}`);
     });
-}
+});
 
 process.on('unhandledRejection', (reason, promise) => {
     console.log('Unhandled Rejection at:', promise, 'reason:', reason);
