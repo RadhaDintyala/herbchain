@@ -1,28 +1,42 @@
 /**
- * Fabric Network Abstraction Layer
- * Since setting up a real Hyperledger Fabric network is very heavy,
- * we provide a mock mode for rapid UI/UX testing offline.
+ * Independent Fabric Network Layer (Mock Mode)
+ * This version stores data in 'mock_ledger.json' so you can use it for your assignment
+ * without needing Docker or your Lead's laptop.
  */
-// require('fabric-network') moved inside functions to allow mock mode
 
 const fs = require('fs');
 const path = require('path');
+
+// Ensure this path points correctly to your chaincode file
 const HerbChainContract = require('../../chaincode/lib/herbchain');
 
-const MOCK_MODE = process.env.MOCK_FABRIC === 'true';
+const MOCK_STORAGE_PATH = path.resolve(__dirname, 'mock_ledger.json');
 
-// Mock Ledger State
-const mockState = new Map();
-
-// Mock Context to pass into the Chaincode
-class MockStub {
-    async putState(key, value) {
-        mockState.set(key, value);
-    }
-    async getState(key) {
-        return mockState.get(key) || null;
+// --- 1. Persistence Logic ---
+// This loads your "Blockchain" data from a file if it exists
+let mockData = {};
+if (fs.existsSync(MOCK_STORAGE_PATH)) {
+    try {
+        mockData = JSON.parse(fs.readFileSync(MOCK_STORAGE_PATH, 'utf8'));
+    } catch (e) {
+        console.error("Error loading mock ledger, starting fresh.");
+        mockData = {};
     }
 }
+
+// --- 2. Mock Hyperledger Classes ---
+class MockStub {
+    async putState(key, value) {
+        // Save data to our local object
+        mockData[key] = value.toString();
+        // Write to file so it's "Immutable" and saved for your demo
+        fs.writeFileSync(MOCK_STORAGE_PATH, JSON.stringify(mockData, null, 2));
+    }
+    async getState(key) {
+        return mockData[key] || null;
+    }
+}
+
 class MockContext {
     constructor() {
         this.stub = new MockStub();
@@ -31,82 +45,47 @@ class MockContext {
 
 const mockContract = new HerbChainContract();
 
-async function getContract() {
-    if (MOCK_MODE) {
-        return mockContract;
-    }
-
-    // Real implementation would go here (e.g. connecting using org1 wallet and gateway)
-    throw new Error("Real Fabric network not configured for this demo. Set MOCK_FABRIC=true in .env");
-}
+// --- 3. Exported Functions (Matched to your api.js) ---
 
 async function submitTransaction(fnName, ...args) {
-    if (MOCK_MODE) {
-        console.log(`[MOCK FABRIC] Invoking ${fnName} with args:`, args);
-        const ctx = new MockContext();
-        if (typeof mockContract[fnName] === 'function') {
-            const result = await mockContract[fnName](ctx, ...args);
-            return result;
-        } else {
-            throw new Error(`Chaincode function ${fnName} not found`);
-        }
+    console.log(`[LEDGER] Executing: ${fnName}`);
+    const ctx = new MockContext();
+    if (typeof mockContract[fnName] === 'function') {
+        // This runs the ACTUAL logic from your chaincode/lib/herbchain.js
+        const result = await mockContract[fnName](ctx, ...args);
+        return result; 
+    } else {
+        throw new Error(`Chaincode function ${fnName} not found`);
     }
 }
 
 async function evaluateTransaction(fnName, ...args) {
-    if (MOCK_MODE) {
-        console.log(`[MOCK FABRIC] Evaluating ${fnName} with args:`, args);
-        const ctx = new MockContext();
-        if (typeof mockContract[fnName] === 'function') {
-            const result = await mockContract[fnName](ctx, ...args);
-            return result;
-        } else {
-            throw new Error(`Chaincode function ${fnName} not found`);
-        }
+    const ctx = new MockContext();
+    if (typeof mockContract[fnName] === 'function') {
+        const result = await mockContract[fnName](ctx, ...args);
+        return result;
+    } else {
+        throw new Error(`Chaincode function ${fnName} not found`);
     }
 }
 
-// Helper query function strictly for Dashboard UI purposes (not part of secure chaincode)
+// Helper functions for your Dashboards
 async function getAllCollections() {
-    if (MOCK_MODE) {
-        const collections = [];
-        for (const [key, value] of mockState.entries()) {
-            const obj = JSON.parse(value.toString());
-            if (obj.docType === 'collection') {
-                collections.push(obj);
-            }
-        }
-        return collections;
-    }
-    return [];
+    return Object.values(mockData)
+        .map(v => JSON.parse(v))
+        .filter(obj => obj.docType === 'collection');
 }
 
 async function getAllTests() {
-    if (MOCK_MODE) {
-        const tests = [];
-        for (const [key, value] of mockState.entries()) {
-            const obj = JSON.parse(value.toString());
-            if (obj.docType === 'qualityTest') {
-                tests.push(obj);
-            }
-        }
-        return tests;
-    }
-    return [];
+    return Object.values(mockData)
+        .map(v => JSON.parse(v))
+        .filter(obj => obj.docType === 'qualityTest');
 }
 
 async function getAllBatches() {
-    if (MOCK_MODE) {
-        const batches = [];
-        for (const [key, value] of mockState.entries()) {
-            const obj = JSON.parse(value.toString());
-            if (obj.docType === 'batch') {
-                batches.push(obj);
-            }
-        }
-        return batches;
-    }
-    return [];
+    return Object.values(mockData)
+        .map(v => JSON.parse(v))
+        .filter(obj => obj.docType === 'batch');
 }
 
 module.exports = {
