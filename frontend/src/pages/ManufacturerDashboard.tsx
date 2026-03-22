@@ -8,10 +8,10 @@ import { useToast } from "@/components/ui/use-toast";
 import { QRCodeSVG } from "qrcode.react";
 
 const sidebarItems = [
-  { icon: "dashboard", label: "Dashboard", active: true },
-  { icon: "inventory_2", label: "Available Batches" },
-  { icon: "factory", label: "Processed Products" },
-  { icon: "analytics", label: "Yield Reports" },
+  { icon: "dashboard", label: "Operations Overview", active: true },
+  { icon: "inventory_2", label: "Inbound Batches" },
+  { icon: "conveyor_belt", label: "Processing Lines" },
+  { icon: "local_shipping", label: "Outbound Logistics" },
 ];
 
 const ManufacturerDashboard = () => {
@@ -28,8 +28,8 @@ const ManufacturerDashboard = () => {
     linkedCollectionIds: '',
     linkedTestIds: '',
     manufactureDate: new Date().toISOString().split('T')[0],
-    expiryDate: new Date(Date.now() + 31536000000).toISOString().split('T')[0], // 1 year from now
-    qrHash: 'QR_PENDING'
+    expiryDate: new Date(Date.now() + 31536000000).toISOString().split('T')[0], 
+    qrHash: 'SECURE_HASH_PENDING'
   });
 
   const { toast } = useToast();
@@ -53,8 +53,8 @@ const ManufacturerDashboard = () => {
     } catch (err: any) {
       toast({
         variant: "destructive",
-        title: "Error fetching data",
-        description: err.response?.data?.msg || err.message,
+        title: "Sync Error",
+        description: "Could not retrieve warehouse data from ledger.",
       });
     } finally {
       setLoading(false);
@@ -81,7 +81,7 @@ const ManufacturerDashboard = () => {
 
       const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
       await axios.post(`${API_URL}/api/chain/batch`, payload);
-      toast({ title: "Success", description: "Production batch registered on the blockchain!" });
+      toast({ title: "Ledger Updated", description: "Production batch finalized and cryptographically signed." });
       setIsModalOpen(false);
       setFormData({
         ...formData,
@@ -98,188 +98,185 @@ const ManufacturerDashboard = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
-      {/* Sidebar */}
-      <aside className="w-72 border-r border-primary/10 bg-card flex flex-col sticky top-0 h-screen">
-        <div className="p-6 flex items-center gap-3">
-          <div className="size-10 rounded-lg bg-primary flex items-center justify-center text-primary-foreground">
-            <span className="material-symbols-outlined">track_changes</span>
+    <div className="flex min-h-screen bg-slate-50 font-sans">
+      {/* 🧾 Sidebar - Professional Logistics Look */}
+      <aside className="w-72 border-r border-blue-100 bg-white flex flex-col sticky top-0 h-screen shadow-sm">
+        <div className="p-8 flex items-center gap-3">
+          <div className="size-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-100">
+            <span className="material-symbols-outlined">precision_manufacturing</span>
           </div>
           <div>
-            <h1 className="text-primary font-bold text-lg leading-tight">HerbChain</h1>
-            <p className="text-xs text-muted-foreground font-medium">Manufacturer Portal</p>
+            <h1 className="text-slate-900 font-black text-xl leading-tight tracking-tight">RetailChain</h1>
+            <p className="text-[10px] text-blue-600 font-black uppercase tracking-widest">Warehouse Node</p>
           </div>
         </div>
-        <nav className="flex-1 px-4 space-y-2">
+        <nav className="flex-1 px-4 space-y-1">
           {sidebarItems.map((item) => (
-            <a key={item.label} className={`flex items-center gap-3 px-4 py-3 rounded-xl ${item.active ? "bg-primary/10 text-primary font-semibold" : "text-muted-foreground hover:bg-primary/5 hover:text-primary"} transition-colors`} href="#">
-              <span className="material-symbols-outlined">{item.icon}</span>
-              <span>{item.label}</span>
+            <a key={item.label} className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${item.active ? "bg-blue-600 text-white shadow-md shadow-blue-100 font-bold" : "text-slate-500 hover:bg-blue-50 hover:text-blue-600"}`} href="#">
+              <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
+              <span className="text-sm">{item.label}</span>
             </a>
           ))}
         </nav>
-        <div className="p-4 mt-auto">
-          <div className="p-4 rounded-xl bg-primary/5 border border-primary/10">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="size-8 rounded-full bg-muted bg-cover bg-center" style={{ backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuA7kTzqdBCU0GDCE-cC-Up_YBhaktRmivY0xXJpaeoVcqU54KwSMZVE_rRTci9zTwlmwDZqeBvCKpwbUxzMDrh35ktaCauoY5blzBMxLNL2yEn7SfGS2sN3LSQEPaJxzpTe_t_VXYFtkTjxF9gK99NY9YKtVvLFw06MJbyhQMgJ2ziruEslyN2G6TrGIhKOxi11WWwRyU1zSB6tfggm3F6-doanSOR3iryUG-IRxXNHh0IXlMxMylqsuOlMjoFSZiVhcO7T4FYE1G8V')` }}></div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold truncate">{user?.name || "Alex Miller"}</p>
-                <p className="text-xs text-muted-foreground">Manufacturer</p>
-              </div>
+        <div className="p-6 mt-auto border-t border-slate-100">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="size-9 rounded-full bg-slate-200 border-2 border-blue-100 overflow-hidden">
+               <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7kTzqdBCU0GDCE-cC-Up_YBhaktRmivY0xXJpaeoVcqU54KwSMZVE_rRTci9zTwlmwDZqeBvCKpwbUxzMDrh35ktaCauoY5blzBMxLNL2yEn7SfGS2sN3LSQEPaJxzpTe_t_VXYFtkTjxF9gK99NY9YKtVvLFw06MJbyhQMgJ2ziruEslyN2G6TrGIhKOxi11WWwRyU1zSB6tfggm3F6-doanSOR3iryUG-IRxXNHh0IXlMxMylqsuOlMjoFSZiVhcO7T4FYE1G8V" alt="Profile" className="w-full h-full object-cover" />
             </div>
-            <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 py-2 text-xs font-bold text-muted-foreground hover:text-primary transition-colors">
-              <span className="material-symbols-outlined text-sm">logout</span> Sign Out
-            </button>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-slate-900 truncate">{user?.name || "Operations Lead"}</p>
+              <p className="text-[10px] text-slate-400 font-bold">Authenticated User</p>
+            </div>
           </div>
+          <Button onClick={handleLogout} variant="ghost" className="w-full justify-start text-slate-400 hover:text-red-600 hover:bg-red-50 h-10 rounded-xl">
+            <span className="material-symbols-outlined mr-2 text-sm">logout</span>
+            <span className="text-xs font-bold uppercase tracking-wider">Secure Exit</span>
+          </Button>
         </div>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0">
-        <header className="h-20 border-b border-primary/10 bg-card/80 backdrop-blur-md sticky top-0 z-10 px-8 flex items-center justify-between">
+        <header className="h-20 border-b border-blue-100 bg-white/80 backdrop-blur-md sticky top-0 z-10 px-10 flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">Manufacturer Dashboard</h2>
-            <p className="text-sm text-muted-foreground">Real-time supply chain monitoring and processing</p>
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight">Warehouse Control</h2>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Live Ledger Monitoring</p>
           </div>
           <div className="flex items-center gap-4">
-            <button className="p-2 rounded-full hover:bg-primary/5 text-muted-foreground relative">
-              <span className="material-symbols-outlined">notifications</span>
-              <span className="absolute top-2 right-2 size-2 bg-red-500 rounded-full border-2 border-card"></span>
-            </button>
-            <Button onClick={() => setIsModalOpen(true)} className="shadow-lg shadow-primary/20">
-              <span className="material-symbols-outlined text-xl">add</span>
+             <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 rounded-full border border-emerald-100">
+                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                <span className="text-[10px] font-black text-emerald-700">LEDGER SYNCED</span>
+             </div>
+            <Button onClick={() => setIsModalOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-200 rounded-xl h-11 px-6 font-bold">
+              <span className="material-symbols-outlined mr-2">add_box</span>
               New Production Run
             </Button>
           </div>
         </header>
 
-        <div className="p-8 space-y-8">
+        <div className="p-10 space-y-10">
 
           {/* QR Code Modal */}
           {selectedQrBatch && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity">
-              <div className="bg-card w-full max-w-sm rounded-2xl shadow-2xl p-8 relative border border-primary/20 flex flex-col items-center animate-in fade-in zoom-in-95 duration-200">
-                <button onClick={() => setSelectedQrBatch(null)} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground">
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4">
+              <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-10 relative border border-blue-50 flex flex-col items-center animate-in zoom-in-95">
+                <button onClick={() => setSelectedQrBatch(null)} className="absolute top-6 right-6 text-slate-400 hover:text-slate-900">
                   <span className="material-symbols-outlined">close</span>
                 </button>
-                <h3 className="text-xl font-bold mb-2">Batch QR Code</h3>
-                <p className="text-muted-foreground text-sm mb-6 text-center">Scan this with the Traceability Hub to instantly verify its origin.</p>
-                <div className="p-4 bg-white rounded-xl shadow-inner inline-block">
-                  <QRCodeSVG value={selectedQrBatch} size={200} />
+                <h3 className="text-2xl font-black text-slate-900 mb-2">Product QR</h3>
+                <p className="text-slate-500 text-sm mb-8 text-center font-medium">Scan this unique identifier at any retail point for instant verification.</p>
+                <div className="p-6 bg-slate-50 rounded-3xl shadow-inner border border-slate-100">
+                  <QRCodeSVG value={selectedQrBatch} size={200} fgColor="#0f172a" />
                 </div>
-                <p className="mt-6 font-mono font-bold text-primary text-xl">{selectedQrBatch}</p>
-                <Button className="w-full mt-6" onClick={() => setSelectedQrBatch(null)}>Close</Button>
+                <p className="mt-8 font-mono font-black text-blue-600 text-xl tracking-tighter bg-blue-50 px-4 py-2 rounded-xl">{selectedQrBatch}</p>
+                <Button className="w-full mt-8 bg-slate-900 text-white h-12 rounded-xl font-bold" onClick={() => setSelectedQrBatch(null)}>Dismiss</Button>
               </div>
             </div>
           )}
 
-          {/* Dialog Modal */}
+          {/* Registration Form Modal */}
           {isModalOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity">
-              <div className="bg-card w-full max-w-lg rounded-2xl shadow-2xl p-6 relative border border-primary/20 animate-in fade-in zoom-in-95 duration-200">
-                <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground">
-                  <span className="material-symbols-outlined">close</span>
-                </button>
-                <div className="mb-6">
-                  <h3 className="text-2xl font-bold">New Production Run</h3>
-                  <p className="text-muted-foreground text-sm mt-1">Combine raw collections into a finalized product batch.</p>
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4">
+              <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl p-8 border border-blue-50 animate-in zoom-in-95">
+                <div className="flex justify-between items-start mb-8">
+                  <div>
+                    <h3 className="text-2xl font-black text-slate-900">Initiate Production</h3>
+                    <p className="text-slate-500 text-sm font-medium mt-1">Bundle raw stock into consumer-ready batches.</p>
+                  </div>
+                  <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-900">
+                    <span className="material-symbols-outlined">close</span>
+                  </button>
                 </div>
 
-                <form onSubmit={handleFormSubmit} className="space-y-4">
+                <form onSubmit={handleFormSubmit} className="space-y-6">
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold">Batch ID</label>
-                      <input name="batchId" value={formData.batchId} onChange={handleFormChange} className="w-full h-10 px-3 bg-muted rounded-lg outline-none cursor-not-allowed" readOnly />
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Master Batch ID</label>
+                      <input name="batchId" value={formData.batchId} className="w-full h-12 px-4 bg-slate-50 border border-slate-100 rounded-xl font-mono text-sm text-blue-600 outline-none" readOnly />
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold">QR Code Hash</label>
-                      <input name="qrHash" value={formData.qrHash} onChange={handleFormChange} className="w-full h-10 px-3 bg-muted border border-border rounded-lg outline-none text-muted-foreground text-sm" readOnly />
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Cryptographic Hash</label>
+                      <input name="qrHash" value={formData.qrHash} className="w-full h-12 px-4 bg-slate-50 border border-slate-100 rounded-xl text-slate-400 text-[10px] font-bold outline-none" readOnly />
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold text-primary">Linked Collection IDs (comma separated)</label>
-                    <input name="linkedCollectionIds" value={formData.linkedCollectionIds} onChange={handleFormChange} placeholder="COL-1234, COL-5678" required className="w-full h-10 px-3 bg-background border border-primary/30 rounded-lg outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-sm" />
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black uppercase text-blue-600 ml-1">Input Stock IDs (Linked Collections)</label>
+                    <input name="linkedCollectionIds" value={formData.linkedCollectionIds} onChange={handleFormChange} placeholder="e.g. BAT-123, BAT-456" required className="w-full h-12 px-4 bg-white border border-slate-200 rounded-xl outline-none focus:border-blue-600 transition-all font-medium" />
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold">Linked Lab Test IDs (comma separated)</label>
-                    <input name="linkedTestIds" value={formData.linkedTestIds} onChange={handleFormChange} placeholder="TEST-1234, TEST-5678" className="w-full h-10 px-3 bg-background border border-border rounded-lg outline-none focus:border-primary" />
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Linked Quality Reports (Test IDs)</label>
+                    <input name="linkedTestIds" value={formData.linkedTestIds} onChange={handleFormChange} placeholder="e.g. LAB-9001" className="w-full h-12 px-4 bg-white border border-slate-200 rounded-xl outline-none focus:border-blue-600 transition-all" />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold">Manufacture Date</label>
-                      <input type="date" name="manufactureDate" value={formData.manufactureDate} onChange={handleFormChange} required className="w-full h-10 px-3 bg-background border border-border rounded-lg outline-none focus:border-primary" />
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Manufacture Date</label>
+                      <input type="date" name="manufactureDate" value={formData.manufactureDate} onChange={handleFormChange} required className="w-full h-12 px-4 border border-slate-200 rounded-xl outline-none focus:border-blue-600 font-bold text-slate-700" />
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold">Expiry Date</label>
-                      <input type="date" name="expiryDate" value={formData.expiryDate} onChange={handleFormChange} required className="w-full h-10 px-3 bg-background border border-border rounded-lg outline-none focus:border-primary" />
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Expiry Date</label>
+                      <input type="date" name="expiryDate" value={formData.expiryDate} onChange={handleFormChange} required className="w-full h-12 px-4 border border-slate-200 rounded-xl outline-none focus:border-blue-600 font-bold text-slate-700" />
                     </div>
                   </div>
 
-                  <div className="pt-4 flex justify-end gap-3">
-                    <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-                    <Button disabled={isSubmitting} type="submit" className="shadow-lg">
-                      {isSubmitting ? "Registering..." : "Publish Batch"}
+                  <div className="pt-4 flex flex-col gap-3">
+                    <Button disabled={isSubmitting} type="submit" className="bg-blue-600 hover:bg-blue-700 text-white h-14 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-blue-100 transition-all">
+                      {isSubmitting ? "Securing Transaction..." : "Sign & Finalize Batch"}
                     </Button>
+                    <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)} className="text-slate-400 font-bold h-10">Abort</Button>
                   </div>
                 </form>
               </div>
             </div>
           )}
 
-          {/* Stats */}
+          {/* Stats Bar */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: "package_2", badge: "+12.5%", label: "Available for Processing", value: batches.length || 0, unit: "batches" },
-              { icon: "precision_manufacturing", badge: "+5.2%", label: "Total Processed (MTD)", value: "8,500", unit: "kg" },
-              { icon: "agriculture", badge: "12 active", label: "Approved Farmers", value: "48", unit: "" },
-              { icon: "verified", badge: "99.2%", label: "Quality Pass Rate", value: "99.2", unit: "%" },
+              { icon: "inventory_2", label: "Inbound Raw Stock", value: batches.length || 0, color: "text-blue-600", bg: "bg-blue-50" },
+              { icon: "conveyor_belt", label: "Volume Processed", value: "14.2", unit: "k", color: "text-indigo-600", bg: "bg-indigo-50" },
+              { icon: "verified", label: "QA Pass Rate", value: "99.8", unit: "%", color: "text-emerald-600", bg: "bg-emerald-50" },
+              { icon: "local_shipping", label: "Pending Shipments", value: "08", color: "text-amber-600", bg: "bg-amber-50" },
             ].map((s) => (
-              <div key={s.label} className="bg-card p-6 rounded-xl border border-primary/10 shadow-sm">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="p-2 bg-primary/10 rounded-lg text-primary">
-                    <span className="material-symbols-outlined">{s.icon}</span>
-                  </div>
-                  <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded-full">{s.badge}</span>
+              <div key={s.label} className="bg-white p-8 rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/40">
+                <div className={`${s.bg} ${s.color} size-12 rounded-2xl flex items-center justify-center mb-6`}>
+                  <span className="material-symbols-outlined text-2xl">{s.icon}</span>
                 </div>
-                <p className="text-muted-foreground text-sm font-medium">{s.label}</p>
-                <h3 className="text-3xl font-extrabold mt-1">{s.value} {s.unit && <span className="text-lg font-medium text-muted-foreground">{s.unit}</span>}</h3>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{s.label}</p>
+                <h3 className="text-3xl font-black mt-2 text-slate-900">{s.value}<span className="text-base ml-0.5">{s.unit}</span></h3>
               </div>
             ))}
           </div>
 
-          {/* Tests Table */}
-          <div className="bg-card rounded-xl border border-primary/10 shadow-sm overflow-hidden mb-8">
-            <div className="px-6 py-5 border-b border-primary/10 flex items-center justify-between">
+          {/* Quality Audit Table */}
+          <div className="bg-white rounded-3xl border border-blue-100 shadow-2xl shadow-slate-200/50 overflow-hidden">
+            <div className="px-10 py-8 border-b border-slate-50 flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-bold">Verified Lab Tests Available</h3>
-                <p className="text-sm text-muted-foreground mt-1">Include these Test IDs in your new batches to certify quality.</p>
+                <h3 className="text-xl font-black text-slate-900 tracking-tight">Quality Assurance Reports</h3>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Verified lab results for inbound stock</p>
               </div>
             </div>
             <div className="overflow-x-auto">
               {!loading && tests.length > 0 ? (
-                <table className="w-full">
-                  <thead className="bg-muted/50">
+                <table className="w-full text-left">
+                  <thead className="bg-slate-50/50">
                     <tr>
-                      {["Test ID", "Collection ID", "Lab Name", "Moisture", "Status"].map((h) => (
-                        <th key={h} className="px-6 py-4 text-left text-xs font-bold text-muted-foreground uppercase tracking-wider">{h}</th>
+                      {["Report ID", "Inbound Stock", "Auditor", "Compliance", "Status"].map((h) => (
+                        <th key={h} className="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{h}</th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-primary/5">
+                  <tbody className="divide-y divide-slate-50">
                     {tests.map((t: any) => (
-                      <tr key={t.testId} className="hover:bg-primary/5 transition-colors">
-                        <td className="px-6 py-4 font-mono text-sm text-primary font-bold">{t.testId}</td>
-                        <td className="px-6 py-4 font-mono text-sm font-medium">{t.collectionId}</td>
-                        <td className="px-6 py-4 text-sm">{t.labName}</td>
-                        <td className="px-6 py-4 text-sm font-medium">{t.moisturePercentage}%</td>
-                        <td className="px-6 py-4 text-sm">
-                          <span className={`px-2 py-1 rounded text-xs font-bold ${t.pesticideStatus === 'Passed' ? 'bg-emerald-100 text-emerald-700' :
-                              t.pesticideStatus === 'Warning' ? 'bg-orange-100 text-orange-700' :
-                                'bg-red-100 text-red-700'
-                            }`}>
+                      <tr key={t.testId} className="hover:bg-blue-50/30 transition-colors group">
+                        <td className="px-10 py-5 font-mono text-xs font-bold text-blue-600">{t.testId}</td>
+                        <td className="px-10 py-5 font-mono text-xs font-bold text-slate-500">{t.collectionId}</td>
+                        <td className="px-10 py-5 text-sm font-bold text-slate-700">{t.labName}</td>
+                        <td className="px-10 py-5 text-sm font-black text-slate-900">{t.moisturePercentage}%</td>
+                        <td className="px-10 py-5">
+                          <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${t.pesticideStatus === 'Passed' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
                             {t.pesticideStatus}
                           </span>
                         </td>
@@ -288,70 +285,71 @@ const ManufacturerDashboard = () => {
                   </tbody>
                 </table>
               ) : (
-                <div className="p-8 text-center text-muted-foreground">No lab tests available.</div>
+                <div className="p-20 text-center font-bold text-slate-300">NO PENDING AUDITS</div>
               )}
             </div>
           </div>
 
-          {/* Batch Table */}
-          <div className="bg-card rounded-xl border border-primary/10 shadow-sm overflow-hidden">
-            <div className="px-6 py-5 border-b border-primary/10 flex items-center justify-between">
+          {/* Master Batch Table */}
+          <div className="bg-white rounded-3xl border border-blue-100 shadow-2xl shadow-slate-200/50 overflow-hidden">
+            <div className="px-10 py-8 border-b border-slate-50 flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-bold">Approved Batches for Processing</h3>
-                <p className="text-sm text-muted-foreground mt-1">Select a batch to begin a new production run.</p>
+                <h3 className="text-xl font-black text-slate-900 tracking-tight">Retail Ready Inventory</h3>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Immutable production records</p>
               </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={fetchBatches}>
-                  <span className="material-symbols-outlined text-sm">refresh</span> Refresh
-                </Button>
-              </div>
+              <Button variant="ghost" className="text-blue-600 font-black text-[10px] uppercase tracking-widest hover:bg-blue-50" onClick={fetchBatches}>
+                <span className="material-symbols-outlined mr-2 text-sm">sync</span>
+                Refresh Ledger
+              </Button>
             </div>
-            <div className="overflow-x-auto min-h-[200px]">
+            <div className="overflow-x-auto min-h-[250px]">
               {loading ? (
-                <div className="flex items-center justify-center p-8 text-muted-foreground">Loading from blockchain...</div>
+                <div className="flex flex-col items-center justify-center p-20 gap-4">
+                  <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                  <p className="text-[10px] font-black text-slate-400 tracking-widest uppercase">Fetching Blockchain State...</p>
+                </div>
               ) : (
-                <table className="w-full">
-                  <thead className="bg-muted/50">
+                <table className="w-full text-left">
+                  <thead className="bg-slate-50/50">
                     <tr>
-                      {["Batch ID", "Created By", "Collections Used", "Tests Used", "Approved On", "Status"].map((h) => (
-                        <th key={h} className={`px-6 py-4 text-xs font-bold text-muted-foreground uppercase tracking-wider ${h === "Status" ? "text-right" : ""}`}>{h}</th>
+                      {["Batch ID", "Verification", "Source Links", "Quality Hashes", "Status"].map((h) => (
+                        <th key={h} className="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{h}</th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-primary/5">
+                  <tbody className="divide-y divide-slate-50">
                     {batches.length > 0 ? batches.map((b: any) => (
-                      <tr key={b.batchId} className="hover:bg-primary/5 transition-colors">
+                      <tr key={b.batchId} className="hover:bg-blue-50/30 transition-colors group">
                         <td
-                          className="px-6 py-4 font-mono text-sm text-primary font-bold cursor-pointer hover:underline"
+                          className="px-10 py-5 font-mono text-xs font-bold text-blue-600 cursor-pointer hover:underline"
                           onClick={() => setSelectedQrBatch(b.batchId)}
-                          title="View QR Code"
                         >
                           {b.batchId}
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-sm">AgriTrace Mfg</span>
+                        <td className="px-10 py-5">
+                           <div className="size-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center group-hover:border-blue-200 cursor-pointer" onClick={() => setSelectedQrBatch(b.batchId)}>
+                              <span className="material-symbols-outlined text-slate-400 group-hover:text-blue-600 text-sm">qr_code</span>
+                           </div>
+                        </td>
+                        <td className="px-10 py-5">
+                          <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded-md">{b.linkedCollectionIds?.join(", ") || "N/A"}</span>
+                        </td>
+                        <td className="px-10 py-5">
+                          <div className="flex flex-wrap gap-1 max-w-[200px]">
+                            {b.linkedTestIds?.map((t: string) => <span key={t} className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-[9px] font-black border border-blue-100 uppercase">{t}</span>)}
                           </div>
                         </td>
-                        <td className="px-6 py-4">
-                          <span className="px-3 py-1 bg-muted rounded-full text-xs font-semibold">{b.linkedCollectionIds?.join(", ") || "N/A"}</span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex flex-wrap max-w-[200px] gap-1">
-                            {b.linkedTestIds?.map((t: string) => <span key={t} className="px-2 py-0.5 bg-primary/10 text-primary rounded text-[10px] font-bold">{t}</span>)}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-muted-foreground">
-                          {b.manufactureDate ? format(new Date(b.manufactureDate), 'MMM dd, yyyy') : "Unknown"}
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <button className="text-xs font-bold text-emerald-600 bg-emerald-100 px-3 py-1 rounded-full">Ready</button>
+                        <td className="px-10 py-5">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-100 text-emerald-700">
+                             <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
+                             Signed
+                          </span>
                         </td>
                       </tr>
                     )) : (
                       <tr>
-                        <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground">
-                          No batches found on the network.
+                        <td colSpan={5} className="px-10 py-20 text-center text-slate-400 font-bold text-sm">
+                          No production records found on the network.
                         </td>
                       </tr>
                     )}
@@ -359,47 +357,44 @@ const ManufacturerDashboard = () => {
                 </table>
               )}
             </div>
-            <div className="p-4 bg-muted/30 border-t border-primary/5 flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">Total: {batches.length} entries</p>
-            </div>
           </div>
 
-          {/* Charts + Logs */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 bg-card rounded-xl border border-primary/10 p-6 shadow-sm">
-              <h3 className="text-lg font-bold mb-6">Production Output Trends</h3>
-              <div className="h-64 flex items-end gap-4 px-4 pb-2">
-                {[40, 65, 55, 85, 70, 45, 60].map((h, i) => (
-                  <div key={i} className={`flex-1 ${i === 3 ? "bg-primary" : "bg-primary/20 hover:bg-primary/40"} rounded-t transition-all relative group`} style={{ height: `${h}%` }}>
-                    <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity">{Math.round(h * 2.9)}kg</span>
+          {/* Activity Logs Bar */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-100 p-10 shadow-xl shadow-slate-200/40">
+              <h3 className="text-xl font-black text-slate-900 mb-8">Warehouse Productivity</h3>
+              <div className="h-64 flex items-end gap-3 px-2">
+                {[55, 75, 60, 95, 80, 50, 65].map((h, i) => (
+                  <div key={i} className={`flex-1 ${i === 3 ? "bg-blue-600" : "bg-blue-100 hover:bg-blue-200"} rounded-xl transition-all relative group shadow-sm`} style={{ height: `${h}%` }}>
+                    <span className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-black py-1.5 px-2.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-10">{Math.round(h * 3)} Batches</span>
                   </div>
                 ))}
               </div>
-              <div className="flex justify-between text-[10px] text-muted-foreground mt-4 px-4 font-bold uppercase tracking-widest">
+              <div className="flex justify-between text-[10px] text-slate-400 mt-6 px-2 font-black uppercase tracking-widest">
                 {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => <span key={d}>{d}</span>)}
               </div>
             </div>
 
-            <div className="bg-card rounded-xl border border-primary/10 p-6 shadow-sm">
-              <h3 className="text-lg font-bold mb-6">Recent Log</h3>
-              <div className="space-y-6">
+            <div className="bg-white rounded-3xl border border-slate-100 p-8 shadow-xl shadow-slate-200/40">
+              <h3 className="text-xl font-black text-slate-900 mb-8">System Audit Log</h3>
+              <div className="space-y-8">
                 {[
-                  { color: "bg-primary", title: "Batch #BAT-441 Processed", desc: "Completed milling 200kg of Organic Wheat.", time: "2 hours ago" },
-                  { color: "bg-yellow-500", title: "New Batch Received", desc: "Batch #BAT-901 arrived from John Doe.", time: "5 hours ago" },
-                  { color: "bg-slate-300", title: "System Maintenance", desc: "QR generator updated to v2.4.", time: "Yesterday" },
+                  { icon: "verified", color: "text-emerald-500", title: "Batch Signed", time: "28m ago" },
+                  { icon: "inventory_2", color: "text-blue-500", title: "New Stock Arrival", time: "2h ago" },
+                  { icon: "sync", color: "text-amber-500", title: "Ledger Update", time: "4h ago" },
                 ].map((l, i) => (
-                  <div key={i} className="flex gap-4">
-                    <div className={`size-2 mt-2 rounded-full ${l.color} shrink-0`}></div>
-                    <div>
-                      <p className="text-sm font-semibold">{l.title}</p>
-                      <p className="text-xs text-muted-foreground">{l.desc}</p>
-                      <p className="text-[10px] text-muted-foreground mt-1 uppercase font-bold">{l.time}</p>
+                  <div key={i} className="flex gap-4 items-start">
+                    <div className={`size-2 mt-2 rounded-full bg-slate-200 shrink-0`}></div>
+                    <div className="flex-1">
+                      <p className="text-sm font-bold text-slate-900 leading-none">{l.title}</p>
+                      <p className="text-[10px] font-black text-slate-400 uppercase mt-1 tracking-widest">{l.time}</p>
                     </div>
+                    <span className={`material-symbols-outlined text-lg ${l.color} opacity-40`}>{l.icon}</span>
                   </div>
                 ))}
               </div>
-              <button className="w-full mt-8 py-2 text-sm font-bold text-primary hover:bg-primary/5 rounded-lg border border-primary/20 transition-all">
-                View All Activity
+              <button className="w-full mt-10 py-3 text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white rounded-xl transition-all">
+                Export Audit Logs
               </button>
             </div>
           </div>

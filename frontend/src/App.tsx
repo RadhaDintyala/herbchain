@@ -5,14 +5,14 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useContext } from "react";
 import AuthContext, { AuthProvider } from "./context/AuthContext";
-import Index from "./pages/Index";
+import Index from "./pages/Index"; // This is your Landing Page
 import Login from "./pages/Login";
-import FarmerDashboard from "./pages/FarmerDashboard";
-import ManufacturerDashboard from "./pages/ManufacturerDashboard";
-import AdminDashboard from "./pages/AdminDashboard";
-import ProductTraceability from "./pages/ProductTraceability";
+import FarmerDashboard from "./pages/FarmerDashboard"; // We'll call this Supplier Control
+import ManufacturerDashboard from "./pages/ManufacturerDashboard"; // Warehouse Control
+import AdminDashboard from "./pages/AdminDashboard"; // System Admin
+import ProductTraceability from "./pages/ProductTraceability"; // The Search Page
 import NotFound from "./pages/NotFound";
-
+import Products from "./pages/Products";
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode, allowedRoles?: string[] }) => {
@@ -33,20 +33,34 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
+            {/* 🏠 1. Landing Page */}
             <Route path="/" element={<Index />} />
+            
+            {/* 🔑 Authentication */}
             <Route path="/login" element={<Login />} />
-            <Route path="/farmer" element={
+            
+            {/* 🏭 Supplier Control Center (Formerly Farmer) */}
+            <Route path="/supplier" element={
               <ProtectedRoute allowedRoles={['collector']}>
                 <FarmerDashboard />
               </ProtectedRoute>
             } />
-            <Route path="/manufacturer" element={
+            <Route path="/products" element={<Products />} />
+            
+            {/* 🚚 Warehouse & Logistics (Formerly Manufacturer) */}
+            <Route path="/warehouse" element={
               <ProtectedRoute allowedRoles={['manufacturer']}>
                 <ManufacturerDashboard />
               </ProtectedRoute>
             } />
+            
+            {/* ⚙️ Admin Control Center */}
             <Route path="/admin" element={<AdminDashboard />} />
+            
+            {/* 🧾 Public Traceability Page */}
             <Route path="/traceability" element={<ProductTraceability />} />
+            
+            {/* 404 Page */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

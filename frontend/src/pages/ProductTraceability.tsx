@@ -22,7 +22,7 @@ const ProductTraceability = () => {
         setBatchIdInput(decodedText);
         performSearch(decodedText);
       }, (err) => {
-        // Ignored, continuous scanning
+        // Continuous scanning
       });
 
       return () => {
@@ -39,11 +39,12 @@ const ProductTraceability = () => {
       const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
       const res = await axios.get(`${API_URL}/api/chain/traceability/${idToSearch}`);
       setTraceData(res.data);
+      toast({ title: "Data Verified", description: "Blockchain record retrieved successfully." });
     } catch (err: any) {
       toast({
         variant: "destructive",
-        title: "Traceability Error",
-        description: err.response?.data?.msg || "Batch not found on network.",
+        title: "Record Not Found",
+        description: "This Batch ID is not registered on the secure network.",
       });
     } finally {
       setLoading(false);
@@ -56,220 +57,178 @@ const ProductTraceability = () => {
   };
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-background">
-      {/* Header */}
-      <header className="flex items-center justify-between border-b border-primary/10 bg-card px-6 md:px-20 py-4 sticky top-0 z-50">
+    <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-slate-50">
+      {/* 🧾 Retail Header */}
+      <header className="flex items-center justify-between border-b border-blue-100 bg-white px-6 md:px-20 py-4 sticky top-0 z-50 shadow-sm">
         <div className="flex items-center gap-8">
-          <Link to="/" className="flex items-center gap-4 text-primary">
-            <div className="size-8 bg-primary/10 rounded-lg flex items-center justify-center">
-              <span className="material-symbols-outlined text-primary">verified_user</span>
+          <Link to="/" className="flex items-center gap-3 text-blue-600">
+            <div className="size-9 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-100">
+              <span className="material-symbols-outlined text-xl">verified</span>
             </div>
-            <h2 className="text-foreground text-lg font-bold leading-tight tracking-tight">Traceability Hub</h2>
+            <h2 className="text-slate-900 text-lg font-black leading-tight tracking-tight">Traceability Hub</h2>
           </Link>
-          <div className="hidden md:flex items-center gap-9">
-            <Link className="text-muted-foreground hover:text-primary text-sm font-medium transition-colors" to="/">Home</Link>
-            <a className="text-muted-foreground hover:text-primary text-sm font-medium transition-colors" href="#">Insights</a>
-            <a className="text-muted-foreground hover:text-primary text-sm font-medium transition-colors" href="#">Support</a>
+          <div className="hidden lg:flex items-center gap-6">
+            <Link className="text-slate-500 hover:text-blue-600 text-sm font-bold transition-colors" to="/">Home</Link>
+            <Link className="text-slate-500 hover:text-blue-600 text-sm font-bold transition-colors" to="/supplier">Admin</Link>
           </div>
         </div>
-        <div className="flex flex-1 justify-end gap-2 md:gap-4 ml-4">
-          <form onSubmit={handleSearch} className="flex flex-1 sm:flex-none items-center h-10 w-full max-w-64 bg-muted rounded-xl px-2 sm:px-4">
-            <span className="material-symbols-outlined text-xl text-muted-foreground cursor-pointer hidden sm:block mr-2" onClick={() => handleSearch()}>search</span>
+        <div className="flex flex-1 justify-end gap-3 ml-4">
+          <form onSubmit={handleSearch} className="flex flex-1 sm:flex-none items-center h-11 w-full max-w-sm bg-slate-100 rounded-xl px-4 border border-transparent focus-within:border-blue-300 focus-within:bg-white transition-all">
             <input
               value={batchIdInput}
               onChange={(e) => setBatchIdInput(e.target.value)}
-              className="flex-1 w-full min-w-0 border-none bg-transparent focus:ring-0 text-xs sm:text-sm placeholder:text-muted-foreground outline-none"
-              placeholder="Search Batch ID..."
+              className="flex-1 w-full border-none bg-transparent focus:ring-0 text-sm font-bold placeholder:text-slate-400 outline-none"
+              placeholder="Enter Batch ID (e.g. BAT-1234)"
             />
+            <button type="submit" className="material-symbols-outlined text-blue-600 hover:scale-110 transition-transform">search</button>
           </form>
-          <Button onClick={() => setIsScanning(true)} className="gap-1 sm:gap-2 px-3 sm:px-4">
+          <Button onClick={() => setIsScanning(true)} className="bg-blue-600 hover:bg-blue-700 text-white gap-2 rounded-xl h-11 font-bold">
             <span className="material-symbols-outlined text-xl">qr_code_scanner</span>
             <span className="hidden sm:inline">Scan QR</span>
           </Button>
         </div>
       </header>
 
-      <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-8">
-
-        {loading && <div className="p-12 text-center text-muted-foreground">Searching blockchain records...</div>}
-
-        {!loading && !traceData && (
-          <div className="flex flex-col items-center justify-center p-24 text-center bg-card rounded-xl border border-primary/10">
-            <span className="material-symbols-outlined text-6xl text-muted-foreground mb-4 opacity-50">qr_code_scanner</span>
-            <h2 className="text-2xl font-bold">Search the Ledger</h2>
-            <p className="text-muted-foreground mt-2 max-w-md">Enter a Batch ID above or scan a product's QR code to view its complete, verifiable journey from farm to processing.</p>
+      <main className="flex-1 max-w-6xl mx-auto w-full px-4 py-12">
+        {loading && (
+          <div className="flex flex-col items-center justify-center p-20 gap-4">
+            <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <p className="font-bold text-slate-400 animate-pulse">VERIFYING BLOCKCHAIN LEDGER...</p>
           </div>
         )}
 
-        {/* Product Hero */}
+        {!loading && !traceData && (
+          <div className="flex flex-col items-center justify-center p-20 text-center bg-white rounded-3xl border border-blue-100 shadow-xl shadow-slate-200/50">
+            <div className="size-20 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 mb-6">
+               <span className="material-symbols-outlined text-5xl">search_insights</span>
+            </div>
+            <h2 className="text-3xl font-black text-slate-900">Track Full Journey</h2>
+            <p className="text-slate-500 mt-3 max-w-md font-medium leading-relaxed">Enter a unique Batch ID to retrieve its complete lifecycle across manufacturing, testing, and logistics.</p>
+          </div>
+        )}
+
+        {/* 🚀 Traceability Report Result */}
         {!loading && traceData && (
           <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out fill-mode-both">
-            <div className="mb-8 bg-card rounded-xl overflow-hidden shadow-sm border border-primary/5">
-              <div className="relative h-64 w-full bg-cover bg-center" style={{
-                backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7)), url('https://lh3.googleusercontent.com/aida-public/AB6AXuDatPyqCEUtBqriGD5IYebiYp6LCCd_IDp2cjnFgVJeC5-_AJTDZTZ0sDlPU0BMR4yoJkTCqqbgB_mtaFocM_-VvOIRMJ7yk-1iiSbwvVbsa-0F7sGzIkhXbxRARJqMTQMEN1A_lv-lnSsD81NiGQhaAw_8cd4Q9H6RL4OkdDERIscrje4iAu12AOPeEp-sZ07ldr5EEJGdupFkvn3UlsPKBaroHz1go1rnjMa08A3TSPzOXByHAeTGSM9ERTyxQNElNQAH_LNJGmU4')`
-              }}>
-                <div className="absolute bottom-6 left-6 text-white">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="bg-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1 shadow-[0_0_15px_rgba(34,197,94,0.5)]">
-                      <span className="material-symbols-outlined text-xs">verified</span>
-                      Blockchain Verified
+            <div className="mb-10 bg-white rounded-3xl overflow-hidden shadow-2xl border border-blue-50">
+              <div className="relative h-48 w-full bg-slate-900 flex items-center px-10 overflow-hidden">
+                <div className="absolute top-0 right-0 w-1/2 h-full bg-blue-600/20 skew-x-12 translate-x-20"></div>
+                <div className="relative z-10 text-white">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="bg-blue-500 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg">
+                      <span className="material-symbols-outlined text-sm">verified_user</span>
+                      Authenticity Verified
                     </span>
                   </div>
-                  <h1 className="text-3xl font-black mb-1">Authenticated Batch</h1>
-                  <p className="text-white/80 text-sm font-mono tracking-wide">Batch ID: {traceData.batch.batchId}</p>
+                  <h1 className="text-4xl font-black mb-1">Traceability Report</h1>
+                  <p className="text-blue-400 text-sm font-mono font-bold">ID: {traceData.batch.batchId}</p>
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x border-t border-primary/5">
+              <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x border-t border-slate-100">
                 {[
-                  { label: "Manufacturer", value: traceData.batch.manufacturerId },
-                  { label: "Date Processed", value: traceData.batch.timestamp ? format(new Date(parseInt(traceData.batch.timestamp, 10)), 'MMM dd, yyyy') : "N/A" },
-                  { label: "Authenticity", value: "Verified on Chain", icon: "shield", isPrimary: true },
+                  { label: "Current Node", value: traceData.batch.manufacturerId, icon: "warehouse" },
+                  { label: "Entry Date", value: traceData.batch.timestamp ? format(new Date(parseInt(traceData.batch.timestamp, 10)), 'MMM dd, yyyy') : "N/A", icon: "calendar_today" },
+                  { label: "Status", value: "Verified on Chain", icon: "security", isPrimary: true },
                 ].map((d) => (
-                  <div key={d.label} className="p-6 flex flex-col gap-1">
-                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">{d.label}</span>
-                    <span className={`text-lg font-bold ${d.isPrimary ? "text-primary flex items-center gap-2" : ""}`}>
-                      {d.value}
-                      {d.icon && <span className="material-symbols-outlined text-xl">{d.icon}</span>}
-                    </span>
+                  <div key={d.label} className="p-8 flex items-center gap-5">
+                    <div className="size-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
+                       <span className="material-symbols-outlined text-2xl">{d.icon}</span>
+                    </div>
+                    <div className="flex flex-col">
+                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{d.label}</span>
+                       <span className={`text-base font-black ${d.isPrimary ? "text-blue-600" : "text-slate-900"}`}>{d.value}</span>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Timeline */}
-              <div className="lg:col-span-2 space-y-6">
-                <h3 className="text-xl font-bold flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary">timeline</span>
-                  Batch Ancestry
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+              {/* Journey Timeline */}
+              <div className="lg:col-span-2 space-y-8">
+                <h3 className="text-2xl font-black text-slate-900 flex items-center gap-3">
+                  <span className="material-symbols-outlined text-blue-600">route</span>
+                  Supply Chain Journey
                 </h3>
 
                 {traceData.collections.map((col: any, idx: number) => (
-                  <div key={idx} className="relative pl-8 mb-8 space-y-12 before:content-[''] before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-muted">
-                    <div className="relative">
-                      <div className="absolute -left-[30px] top-0 size-6 rounded-full bg-primary border-4 border-card z-10 shadow-sm"></div>
-                      <div className="bg-card p-6 rounded-xl border border-primary/5 shadow-sm">
-                        <div className="flex justify-between items-start mb-4">
-                          <div>
-                            <h4 className="font-bold text-lg">Farm Cultivation</h4>
-                            <p className="text-sm text-muted-foreground">Collector ID: {col.collectorId}</p>
-                          </div>
-                          <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-1 rounded">
-                            {col.timestamp ? format(new Date(parseInt(col.timestamp, 10)), 'yyyy-MM-dd') : "Date Unknown"}
-                          </span>
-                        </div>
-                        <div className="grid grid-cols-1 gap-4 mb-4">
-                          <div className="space-y-2">
-                            {[
-                              { icon: "eco", text: `Crop: ${col.herbName}` },
-                              { icon: "scale", text: `Quantity: ${col.quantity} kg` },
-                              { icon: "map", text: `Origin Details: ${col.farmDetails}` },
-                            ].map((d) => (
-                              <div key={d.icon} className="flex items-center gap-2 text-sm">
-                                <span className="material-symbols-outlined text-primary text-base">{d.icon}</span>
-                                <span className="text-muted-foreground">{d.text}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 p-3 bg-primary/5 rounded-lg border border-primary/10">
-                          <span className="material-symbols-outlined text-primary text-sm">link</span>
-                          <span className="text-[10px] font-mono text-primary truncate">Collection ID: {col.collectionId}</span>
-                        </div>
-                      </div>
+                  <div key={idx} className="relative pl-12 before:content-[''] before:absolute before:left-[19px] before:top-4 before:bottom-[-32px] before:w-[2px] before:bg-blue-100 last:before:hidden">
+                    <div className="absolute -left-1 top-0 size-10 rounded-2xl bg-white border-2 border-blue-600 flex items-center justify-center text-blue-600 z-10 shadow-lg shadow-blue-50">
+                       <span className="material-symbols-outlined text-xl">inventory_2</span>
                     </div>
-                  </div>
-                ))}
-
-                {traceData.tests && traceData.tests.map((test: any, idx: number) => (
-                  <div key={`test-${idx}`} className="relative pl-8 mb-8 space-y-12 before:content-[''] before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-muted">
-                    <div className="relative">
-                      <div className="absolute -left-[30px] top-0 size-6 rounded-full bg-blue-500 border-4 border-card z-10 shadow-sm"></div>
-                      <div className="bg-card p-6 rounded-xl border border-blue-500/20 shadow-sm">
-                        <div className="flex justify-between items-start mb-4">
-                          <div>
-                            <h4 className="font-bold text-lg text-blue-600">Lab Quality Verification</h4>
-                            <p className="text-sm text-muted-foreground">Facility: {test.labName || "Independent Lab"}</p>
+                    <div className="bg-white p-8 rounded-3xl border border-blue-50 shadow-xl shadow-slate-200/40 group hover:border-blue-200 transition-all">
+                      <div className="flex justify-between items-start mb-6">
+                        <div>
+                          <h4 className="font-black text-xl text-slate-900">Manufacturing Entry</h4>
+                          <p className="text-xs font-bold text-slate-400 uppercase mt-1">Source ID: {col.collectorId}</p>
+                        </div>
+                        <span className="text-xs font-black text-blue-700 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100">
+                          {col.timestamp ? format(new Date(parseInt(col.timestamp, 10)), 'yyyy-MM-dd') : "N/A"}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-6 mb-6">
+                        {[
+                          { icon: "category", label: "Product", val: col.herbName },
+                          { icon: "layers", label: "Qty", val: `${col.quantity} Units` },
+                          { icon: "location_on", label: "Supplier", val: col.farmDetails },
+                        ].map((d) => (
+                          <div key={d.label} className="flex flex-col gap-1">
+                             <span className="text-[10px] font-black text-slate-400 uppercase">{d.label}</span>
+                             <div className="flex items-center gap-2">
+                               <span className="material-symbols-outlined text-blue-600 text-sm">{d.icon}</span>
+                               <span className="text-sm font-bold text-slate-700">{d.val}</span>
+                             </div>
                           </div>
-                          <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded">
-                            {test.testDate ? format(new Date(parseInt(test.testDate, 10)), 'yyyy-MM-dd') : "Date Unknown"}
-                          </span>
-                        </div>
-                        <div className="grid grid-cols-1 gap-4 mb-4">
-                          <div className="space-y-2">
-                            {[
-                              { icon: "water_drop", text: `Moisture: ${test.moisturePercentage || "N/A"}%` },
-                              { icon: "pest_control", text: `Pesticide Check: ${test.pesticideStatus || "N/A"}` },
-                            ].map((d) => (
-                              <div key={d.icon} className="flex items-center gap-2 text-sm">
-                                <span className="material-symbols-outlined text-blue-500 text-base">{d.icon}</span>
-                                <span className="text-muted-foreground font-medium">{d.text}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                          <span className="material-symbols-outlined text-blue-500 text-sm">science</span>
-                          <span className="text-[10px] font-mono text-blue-600 truncate">Report ID: {test.testId}</span>
-                        </div>
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                        <span className="material-symbols-outlined text-slate-400 text-sm">database</span>
+                        <span className="text-[10px] font-mono font-bold text-slate-500 truncate">BLOCK_HASH: {col.collectionId}</span>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
 
-              {/* Sidebar Stats */}
+              {/* Trust Score Sidebar */}
               <div className="space-y-6">
-                <div className="bg-primary text-primary-foreground p-6 rounded-xl shadow-lg relative overflow-hidden group">
-                  <div className="absolute -right-4 -top-4 opacity-10 group-hover:scale-110 transition-transform">
-                    <span className="material-symbols-outlined text-[120px]">verified</span>
+                <div className="bg-blue-600 text-white p-8 rounded-3xl shadow-2xl shadow-blue-200 relative overflow-hidden group">
+                  <div className="absolute -right-8 -top-8 opacity-10 rotate-12 group-hover:scale-110 transition-transform">
+                    <span className="material-symbols-outlined text-[150px]">verified</span>
                   </div>
-                  <h4 className="font-bold text-xl mb-2 flex items-center gap-2 relative z-10">
-                    <span className="material-symbols-outlined">security</span>
+                  <h4 className="font-black text-xl mb-2 flex items-center gap-2 relative z-10">
+                    <span className="material-symbols-outlined">shield_check</span>
                     Trust Score
                   </h4>
-                  <p className="text-primary-foreground/80 text-sm mb-6 relative z-10">Based on data integrity checks across the decentralized network.</p>
-                  <div className="flex items-end gap-2 relative z-10">
-                    <span className="text-5xl font-black">100</span>
-                    <span className="text-lg font-bold mb-1">/100</span>
+                  <p className="text-blue-100 text-xs font-bold mb-8 relative z-10 uppercase tracking-widest">Network Integrity Check</p>
+                  <div className="flex items-baseline gap-2 relative z-10 mb-2">
+                    <span className="text-7xl font-black">98</span>
+                    <span className="text-xl font-bold opacity-60">%</span>
                   </div>
-                  <div className="mt-6 w-full bg-white/20 rounded-full h-2 relative z-10">
-                    <div className="bg-white h-full rounded-full" style={{ width: "100%" }}></div>
+                  <div className="w-full bg-blue-800/50 rounded-full h-2.5 relative z-10 mb-4">
+                    <div className="bg-white h-full rounded-full animate-in slide-in-from-left duration-1000" style={{ width: "98%" }}></div>
                   </div>
+                  <p className="text-[10px] font-bold text-blue-100 italic">"High reliability - Verifiable end-to-end data."</p>
                 </div>
 
-                <div className="bg-card p-6 rounded-xl border border-primary/5 shadow-sm space-y-4">
-                  <h4 className="font-bold flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary">analytics</span>
-                    Batch Composition
+                <div className="bg-white p-8 rounded-3xl border border-blue-50 shadow-xl shadow-slate-200/40 space-y-6">
+                  <h4 className="font-black text-slate-900 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-blue-600">receipt_long</span>
+                    Audit Summary
                   </h4>
                   <div className="space-y-4">
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-muted-foreground">Source Collections</span>
-                      <span className="font-bold">{traceData.collections.length}</span>
+                    <div className="flex justify-between items-center text-sm font-bold">
+                      <span className="text-slate-400">Ledger Status</span>
+                      <span className="text-emerald-600">IMMUTABLE</span>
                     </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-muted-foreground">Quality Tests</span>
-                      <span className="font-bold">{traceData.tests?.length || 0}</span>
+                    <div className="flex justify-between items-center text-sm font-bold">
+                      <span className="text-slate-400">Total Updates</span>
+                      <span className="text-slate-900">{traceData.collections.length} Stages</span>
                     </div>
                   </div>
-                  <hr className="border-muted" />
-                  <button onClick={() => window.print()} className="w-full py-3 px-4 bg-muted hover:bg-muted/80 rounded-xl text-sm font-bold transition-colors flex items-center justify-center gap-2">
-                    <span className="material-symbols-outlined text-lg">download</span>
-                    Full Audit Report (PDF)
-                  </button>
-                </div>
-
-                <div className="bg-card p-6 rounded-xl border border-primary/5 shadow-sm">
-                  <h4 className="font-bold mb-4 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-primary">help</span>
-                    Need Help?
-                  </h4>
-                  <p className="text-sm text-muted-foreground mb-4 leading-relaxed">Questions about this product's lifecycle? Compare details against your physical label.</p>
-                  <a className="text-primary text-sm font-bold hover:underline flex items-center gap-1" href="#">
-                    Contact Supply Chain Support
-                    <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                  </a>
+                  <Button onClick={() => window.print()} className="w-full h-12 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-xl font-black text-xs uppercase tracking-widest transition-all">
+                    Print Proof of Origin
+                  </Button>
                 </div>
               </div>
             </div>
@@ -277,40 +236,34 @@ const ProductTraceability = () => {
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-primary/10 py-10 px-6 mt-12 bg-card text-center">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-2 text-primary">
-            <span className="material-symbols-outlined">verified_user</span>
-            <span className="font-bold">Traceability Hub</span>
+      <footer className="mt-auto py-12 px-6 bg-slate-900 text-white text-center">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-blue-400">verified</span>
+            <span className="font-black tracking-tight">RetailChain Hub</span>
           </div>
-          <p className="text-muted-foreground text-xs">© 2024 Product Traceability Blockchain Network. All Rights Reserved.</p>
-          <div className="flex gap-4">
-            <a className="text-muted-foreground hover:text-primary transition-colors" href="#"><span className="material-symbols-outlined">language</span></a>
-            <a className="text-muted-foreground hover:text-primary transition-colors" href="#"><span className="material-symbols-outlined">info</span></a>
-            <a className="text-muted-foreground hover:text-primary transition-colors" href="#"><span className="material-symbols-outlined">description</span></a>
+          <p className="text-slate-500 text-[10px] font-bold tracking-widest uppercase">Powered by Blockchain Security © 2026</p>
+          <div className="flex gap-6 text-slate-400">
+            <span className="material-symbols-outlined text-xl cursor-pointer hover:text-white">lock</span>
+            <span className="material-symbols-outlined text-xl cursor-pointer hover:text-white">policy</span>
           </div>
         </div>
       </footer>
 
-      {/* QR Scanner Modal */}
+      {/* 📱 Professional QR Scanner */}
       {isScanning && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-sm p-4 animate-in fade-in duration-300">
-          <div className="bg-card w-full max-w-md p-6 rounded-3xl shadow-2xl border border-primary/20 relative animate-in zoom-in-95 duration-300">
-            <Button variant="ghost" size="icon" className="absolute top-4 right-4 bg-muted flex items-center justify-center rounded-full hover:bg-destructive hover:text-destructive-foreground transition-colors z-10" onClick={() => setIsScanning(false)}>
-              <span className="material-symbols-outlined text-lg">close</span>
-            </Button>
-            <div className="text-center mb-6">
-              <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary mb-3">
-                <span className="material-symbols-outlined text-2xl">qr_code_scanner</span>
-              </div>
-              <h3 className="text-xl font-bold">Scan Product QR</h3>
-              <p className="text-muted-foreground text-sm mt-1">Align the QR code within the frame to verify authenticity instantly.</p>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
+          <div className="bg-white w-full max-w-md p-8 rounded-3xl shadow-2xl relative animate-in zoom-in-95 duration-300">
+            <button onClick={() => setIsScanning(false)} className="absolute top-6 right-6 size-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-red-600 transition-colors">
+              <span className="material-symbols-outlined">close</span>
+            </button>
+            <div className="text-center mb-8">
+              <h3 className="text-2xl font-black text-slate-900">Scan Product QR</h3>
+              <p className="text-slate-500 text-sm font-medium mt-2">Instantly verify authenticity on the ledger.</p>
             </div>
-            <div className="rounded-xl overflow-hidden border-2 border-primary/20 bg-muted/50 p-1">
-              <div id="qr-reader" className="w-full bg-black rounded-lg overflow-hidden [&>div]:!border-none [&>video]:scale-[1.02] [&_#qr-shaded-region]:!border-primary/50"></div>
+            <div className="rounded-3xl overflow-hidden border-4 border-blue-50 bg-slate-900 p-2 shadow-inner">
+              <div id="qr-reader" className="w-full"></div>
             </div>
-            <div className="mt-6 flex justify-center text-xs font-mono text-muted-foreground/60">Powered by HexChain Traceability</div>
           </div>
         </div>
       )}
