@@ -24,7 +24,7 @@ We have deployed a **Decoupled Cloud Infrastructure** to ensure 99.9% uptime for
 ---
 
 ## 🌐 Live Logistics Dashboard
-- **Production URL:** herbchain-gtn1.vercel.app
+- **Production URL:** https://herbchain-gtn1.vercel.app
 - **API Gateway:** https://herbchain-bf88.onrender.com
 
 ---
