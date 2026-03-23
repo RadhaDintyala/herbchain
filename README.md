@@ -1,4 +1,4 @@
-# 📦 HerbChain: Enterprise Supply Chain Traceability Ledger
+# 📦 SupplyChain: Enterprise Supply Chain Traceability Ledger
 
 **HerbChain** is a professional MERN-stack solution designed to solve the "Trust Gap" in herbal logistics. By implementing a secure, role-based ledger, we provide 100% end-to-end visibility from the **Point of Collection** to **Warehouse Distribution**.
 
@@ -24,8 +24,8 @@ We have deployed a **Decoupled Cloud Infrastructure** to ensure 99.9% uptime for
 ---
 
 ## 🌐 Live Logistics Dashboard
-- **Production URL:** `herbchain-gtn1.vercel.app`
-- **API Gateway:** `[[Your Render URL]](https://herbchain-bf88.onrender.com)`
+- **Production URL:** herbchain-gtn1.vercel.app
+- **API Gateway:** https://herbchain-bf88.onrender.com
 
 ---
 
