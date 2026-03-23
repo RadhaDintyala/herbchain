@@ -13,6 +13,7 @@ import AdminDashboard from "./pages/AdminDashboard"; // System Admin
 import ProductTraceability from "./pages/ProductTraceability"; // The Search Page
 import NotFound from "./pages/NotFound";
 import Products from "./pages/Products";
+import HowItWorks from "./pages/Protocol";
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode, allowedRoles?: string[] }) => {
@@ -54,6 +55,7 @@ const App = () => (
               </ProtectedRoute>
             } />
             
+         <Route path="/how-it-works" element={<HowItWorks />} />
             {/* ⚙️ Admin Control Center */}
             <Route path="/admin" element={<AdminDashboard />} />
             

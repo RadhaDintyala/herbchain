@@ -109,6 +109,17 @@ const Index = () => {
         </section>
       </main>
 
+      <div className="py-12 bg-white text-center">
+  <Link to="/how-it-works">
+    <Button className="bg-[#2563EB] hover:bg-blue-700 h-14 px-10 rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl shadow-blue-500/20 text-xs transition-all hover:scale-105 active:scale-95">
+      Explore the Trust Protocol →
+    </Button>
+  </Link>
+  <p className="mt-4 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+    Technical deep-dive into the RetailChain ledger
+  </p>
+</div>
+
       {/* 🔥 Footer - Building Trust */}
       <footer className="bg-slate-900 text-white px-6 lg:px-20 py-12">
         <div className="max-w-6xl mx-auto text-center space-y-6">
